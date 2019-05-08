@@ -27,9 +27,17 @@ class User extends GenericModel
       }
       return $data;
     }
-    public function company_users()
+    // public function company_users()
+    // {
+    //     return $this->hasMany('App\CompanyUser');
+    // }
+    public function company_user()
     {
         return $this->hasOne('App\CompanyUser');
+    }
+    public function user_roles()
+    {
+        return $this->hasMany('App\UserRole');
     }
     public function user_basic_information()
     {

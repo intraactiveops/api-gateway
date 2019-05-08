@@ -9,6 +9,7 @@ use App;
 class ServiceLayerController extends Controller
 {
     public $contentType = 'text/json';
+    private $userTokenData = null;
     public function index($module, $function, Request $request){
       $serviceActionRegistry = $this->getService("$module/$function");
       // dd($serviceActionRegistry);
@@ -35,10 +36,13 @@ class ServiceLayerController extends Controller
         'debug' => null
       ];
       $param['PAYLOAD'] = $this->user(null);
+      $request['DEBUG'] = $this->userTokenData; $this->getSubPermissions($serviceActionRegistry['id']);
+
+      // printR($param);
       try {
         $client = new Client(); //GuzzleHttp\Client
         $result = $client->request('POST', $serviceActionRegistry['base_link'].'/'.$serviceActionRegistry['link'], [
-          'form_params' => $param
+          'json' => $param
         ]);
         $result = json_decode((string)$result->getBody(), true);
         $request['data'] = $result['data'];
@@ -54,10 +58,20 @@ class ServiceLayerController extends Controller
             "message" => 'Server Error in the Resource',
             "shot" => (string)$e->getResponse()->getBody()
           ];
+        }else{
+          $request['error'] = [
+            "code" => $e->getResponse()->getStatusCode(),
+            "message" => 'Unknow Error',
+            "shot" => (string)$e->getResponse()->getBody()
+          ];
         }
         $request['debug'] = isset($response['debug']) ? $response['debug'] : null;
       }
       return $request;
+    }
+    public function getSubPermissions($serviceID){
+      $userID = $this->user();
+      return array();
     }
     public function generateResponse($response){
       if($response['error']){
@@ -75,14 +89,13 @@ class ServiceLayerController extends Controller
       }
     }
     public function isAuthorized($serviceActionRegistryID){
-      if(auth()->user()){
-        $user = auth()->user()->toArray();
+      if($this->user()){
+        $user = $this->userTokenData;
         $roleAccessList = [];
         $userAccessList = [];
-        $userRoles = (new App\UserRole())->select(['role_id'])->where('user_id', $user['id'])->pluck('role_id')->toArray();
         $userAccessList = (new App\UserAccessList())->where('user_id', $user['id'])->where('service_action_registry_id', $serviceActionRegistryID)->get()->toArray();
-        if(count($userRoles)){
-          $roleAccessList = (new App\RoleAccessList())->whereIn('role_id', $userRoles)->where('service_action_registry_id', $serviceActionRegistryID)->get()->toArray();
+        if(count($user['role_list'])){
+          $roleAccessList = (new App\RoleAccessList())->whereIn('role_id', $user['role_list'])->where('service_action_registry_id', $serviceActionRegistryID)->get()->toArray();
         }
         if(count($userAccessList) || count($roleAccessList)){
           return true;
@@ -94,7 +107,7 @@ class ServiceLayerController extends Controller
       }
     }
     public function getService($link){
-      $serviceActionRegistry = (new App\ServiceActionRegistry())->where('service_action_registries.link', $link)->first(); // get the service
+      $serviceActionRegistry = (new App\ServiceActionRegistry())->select(['service_action_registries.link as link', 'service_action_registries.id as id', 'service_action_registries.auth_required as auth_required', 'service_actions.service_id'])->where('service_action_registries.link', $link)->leftJoin('service_actions', 'service_actions.id', '=', 'service_action_registries.id')->first(); // get the service
       $serviceActionRegistry = $serviceActionRegistry? $serviceActionRegistry->toArray() : null;
       /**
       The services is not joined in the previous table because theoritically, the JOIN is executed first before the WHERE.
@@ -112,16 +125,24 @@ class ServiceLayerController extends Controller
       return $serviceActionRegistry;
     }
     public function user($key = "id"){
-      if(auth()->user()){
-        $user = auth()->user()->toArray();
+      if($this->userTokenData == null && auth()->user()){
+        $this->userTokenData = auth()->user()->toArray();;
         if(auth()->getPayload()->get('custom')){
           $custom = get_object_vars(auth()->getPayload()->get('custom'));
-          $user = array_merge($user, $custom);
+          $this->userTokenData = array_merge($this->userTokenData, $custom);
+          if(isset($this->userTokenData['roles'])){
+            $this->userTokenData['role_list'] = collect($this->userTokenData['roles'])->keys()->toArray();
+          }else{
+            $this->userTokenData['role_list'] = null;
+          }
+
         }
+      }
+      if($this->userTokenData){
         if($key){
-          return $user[$key];
+          return $this->userTokenData[$key];
         }else{
-          return $user;
+          return $this->userTokenData;
         }
       }else{
         return null;

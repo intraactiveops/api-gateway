@@ -16,7 +16,7 @@ use Illuminate\Http\Request;
 $api_resource = function($apiResource){
   $apiResources = (is_array($apiResource))? $apiResource : [$apiResource];
   foreach($apiResources as $apiResourceValue){
-    $pascalCase = preg_replace_callback("/(?:^|_)([a-z])/", function($matches) {
+    $pascalCase = preg_replace_callback("/(?:^|-)([a-z])/", function($matches) {
         return strtoupper($matches[1]);
     }, $apiResourceValue) . 'Controller';
     Route::get($apiResourceValue."/",$pascalCase."@index");
@@ -38,11 +38,14 @@ Route::get('/', function(){
 $apiResource = [
   'user',
   'role',
-  'user_role',
-  'user_access_list',
-  'role_access_list',
+  'user-role',
+  'use-acces-list',
+  'role-acces-list',
   'service',
-  'service_action',
-  'company'
+  'service-action',
+  'company',
+  'borrower',
+  'borrow_cycle',
+  'borrowing'
 ];
 $api_resource($apiResource);

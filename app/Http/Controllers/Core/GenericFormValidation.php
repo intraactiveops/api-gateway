@@ -29,7 +29,7 @@ class GenericFormValidation extends Controller
       }else{
         $prefix = '';
         if($foreignTableName){
-          $prefix = $foreignTableName.".".((!$tableStructure['is_child']) ? '*.' :'');
+          $prefix = $foreignTableName.".".(($foreignTableName == str_plural($foreignTableName)) ? '*.' :'');
         }
         $rules = isset($columnSetting['validation'])?  explode("|", $columnSetting['validation']) : [];
         $finalizedRule = [];
@@ -51,6 +51,10 @@ class GenericFormValidation extends Controller
               if($foreignTableName && $tableStructure['validation_required']){
                 if($this->apiOperation == "create"){
                   $finalizedRule[] = $rule;
+                }else if($this->apiOperation == "update"){
+                  if($foreignTableName && $foreignTableName == str_plural($foreignTableName) && $column != 'id' && $singularParent.'_id' != $column){
+                    $finalizedRule[] = "required_without:".$foreignTableName.$prefix."id";
+                  }
                 }
               }else{
                 if($this->apiOperation == "create"){

@@ -12,6 +12,7 @@ class RoleController extends GenericController
       'columns' => [
       ],
       'foreign_tables' => [
+        'role_access_lists' => [ "is_child" => true,'validation_required' => false]
       ]
     ];
     $this->initGenericController();

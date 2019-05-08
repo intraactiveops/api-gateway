@@ -17,9 +17,12 @@ class DefaultServiceSeeder extends Seeder
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
         $services = [
-          ["id" => 1, "description" => "User", "link" => "http://localhost/intraactiveops/api/gateway/public/api"],
-          ["id" => 2, "description" => "Service", "link" => "http://localhost/intraactiveops/api/gateway/public/api"],
-          ["id" => 3, "description" => "Auth", "link" => "http://localhost/intraactiveops/api/gateway/public/api"]
+          ["id" => 1, "description" => "User", "link" => "http://localhost/intraactiveops/api/api-gateway/public/api"],
+          ["id" => 2, "description" => "Service", "link" => "http://localhost/intraactiveops/api/api-gateway/public/api"],
+          ["id" => 3, "description" => "Auth", "link" => "http://localhost/intraactiveops/api/api-gateway/public/api"],
+          ["id" => 4, "description" => "Role", "link" => "http://localhost/intraactiveops/api/api-gateway/public/api"],
+          ["id" => 5, "description" => "Service Action", "link" => "http://localhost/intraactiveops/api/api-gateway/public/api"],
+          ["id" => 6, "description" => "Company", "link" => "http://localhost/intraactiveops/api/api-gateway/public/api"]
         ];
         $actions = [
           // USER
@@ -36,7 +39,22 @@ class DefaultServiceSeeder extends Seeder
           ["id" => 9, "service_id" => 3, "description" => "Log In", "link" => "/login", "auth_required" => 0],
           ["id" => 10, "service_id" => 3, "description" => "User Details", "link" => "/user", "auth_required" => 0],
           ["id" => 11, "service_id" => 3, "description" => "Refresh", "link" => "/refresh", "auth_required" => 0],
-          ["id" => 12, "service_id" => 3, "description" => "Log out", "link" => "/logout", "auth_required" => 0]
+          ["id" => 12, "service_id" => 3, "description" => "Log out", "link" => "/logout", "auth_required" => 0],
+          // ROle
+          ["id" => 13, "service_id" => 4, "description" => "Create Role", "link" => "/create", "auth_required" => 1],
+          ["id" => 14, "service_id" => 4, "description" => "Retrieve Role", "link" => "/retrieve", "auth_required" => 1],
+          ["id" => 15, "service_id" => 4, "description" => "Update Role", "link" => "/update", "auth_required" => 1],
+          ["id" => 16, "service_id" => 4, "description" => "Delete Role", "link" => "/delete", "auth_required" => 1],
+          // Service Action
+          ["id" => 17, "service_id" => 5, "description" => "Create Service Action", "link" => "/create", "auth_required" => 1],
+          ["id" => 18, "service_id" => 5, "description" => "Retrieve Service Action", "link" => "/retrieve", "auth_required" => 1],
+          ["id" => 19, "service_id" => 5, "description" => "Update Service Action", "link" => "/update", "auth_required" => 1],
+          ["id" => 20, "service_id" => 5, "description" => "Delete Service Action", "link" => "/delete", "auth_required" => 1],
+          // Company
+          ["id" => 21, "service_id" => 6, "description" => "Create Company", "link" => "/create", "auth_required" => 1],
+          ["id" => 22, "service_id" => 6, "description" => "Retrieve Company", "link" => "/retrieve", "auth_required" => 1],
+          ["id" => 23, "service_id" => 6, "description" => "Update Company", "link" => "/update", "auth_required" => 1],
+          ["id" => 24, "service_id" => 6, "description" => "Delete Company", "link" => "/delete", "auth_required" => 1]
         ];
         DB::table('services') -> insert($services);
         DB::table('service_actions') -> insert($actions);

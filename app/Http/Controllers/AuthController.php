@@ -92,7 +92,7 @@ class AuthController extends Controller
             'access_token' => $token,
             'token_type' => 'bearer',
             'expires_in' => auth()->factory()->getTTL() * 60,
-            'user' => auth()->user()->toArray(),
+            'user' => array_merge(auth()->user()->toArray(), get_object_vars(auth()->getPayload()->get('custom')))
             // 'payoad' => auth()->getPayload(),
         ])->header('Authorization', 'Bearer ' . $this->currentToken);;
     }

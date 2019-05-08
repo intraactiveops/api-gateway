@@ -115,8 +115,11 @@ class GenericRetrieve extends Controller
 
         $condition['clause'] = isset($condition['clause']) ? $condition['clause'] : '=';
         switch($condition['clause']){
+          case 'not_in':
+            $queryModel = $queryModel->whereNotIn(DB::raw($column), $condition['value']);
+            break;
           default:
-          $queryModel = $queryModel->where(DB::raw($column), $condition['clause'], $condition['value']);
+            $queryModel = $queryModel->where(DB::raw($column), $condition['clause'], $condition['value']);
         }
       }
       return $queryModel;

@@ -46,10 +46,12 @@ class GenericController extends Controller
     public function initGenericController(){
       $this->tableStructure = (new Core\TableStructure($this->tableStructure, $this->model))->getStructure();
       $this->responseGenerator = new Core\ResponseGenerator();
-      // printR(requester::input());
-      $this->responseGenerator->addDebug('request', (requester::input()));
-      config()->set('payload', requester::input('PAYLOAD'));
-      $this->responseGenerator->addDebug('payload', config('payload.user_type_id'));
+
+      if(config()->set('payload') == null){
+        config()->set('payload', requester::input('PAYLOAD'));
+      }
+      // $this->responseGenerator->addDebug('request', requester::input());
+      $this->responseGenerator->addDebug('payload', config('payload'));
     }
     public function systemGenerateRetrieveParameter($data){
       return $data;
