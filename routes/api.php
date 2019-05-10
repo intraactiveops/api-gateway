@@ -45,7 +45,7 @@ $apiResource = [
   'service-action',
   'company',
   'borrower',
-  'borrow_cycle',
+  'borrow-cycle',
   'borrowing'
 ];
 $api_resource($apiResource);

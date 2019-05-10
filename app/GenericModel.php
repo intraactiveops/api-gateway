@@ -87,22 +87,25 @@ class GenericModel extends Model
   public function createEntry($entry){
     $entry = $this->systemGenerateValue($entry);
 
-    if($entry == null){
-      echo "System Generate Value has no returned data!";
-      exit();
-    }
-    unset($entry['id']);
-    unset($entry['created_at']);
-    unset($entry['updated_at']);
-    unset($entry['deleted_at']);
-    foreach($entry as $entryColumn => $entryValue){
-      $value = $entryValue;
-      if($entryColumn == 'company_id' && $this->user('user_type_id') >= 10){
-        $value = $this->user('company_id');
-      }else if($entryValue == null){
-        $value = isset($this->defaultValue[$entryColumn]) ? $this->defaultValue[$entryColumn] : $entryValue;
+    // if($entry == null){
+    //   echo "System Generate Value has no returned data!";
+    //   exit();
+    // }
+    if($entry !== null){
+        unset($entry['id']);
+        unset($entry['created_at']);
+        unset($entry['updated_at']);
+        unset($entry['deleted_at']);
+
+      foreach($entry as $entryColumn => $entryValue){
+        $value = $entryValue;
+        if($entryColumn == 'company_id' && $this->user('user_type_id') >= 10){
+          $value = $this->user('company_id');
+        }else if($entryValue == null){
+          $value = isset($this->defaultValue[$entryColumn]) ? $this->defaultValue[$entryColumn] : $entryValue;
+        }
+        $this->$entryColumn = $value;
       }
-      $this->$entryColumn = $value;
     }
     $this->save();
     return $this->id;

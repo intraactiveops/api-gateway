@@ -13,6 +13,7 @@ class BorrowingController extends GenericController
       'columns' => [
       ],
       'foreign_tables' => [
+        'borrower' => ['is_child' => false]
       ]
     ];
     $this->initGenericController();

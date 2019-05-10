@@ -15,7 +15,7 @@ class BorrowCycle extends Migration
     {
       Schema::create('borrow_cycles', function(Blueprint $table){
         $table->increments('id');
-        $table->timestamp('datetime_ended');
+        $table->timestamp('datetime_ended')->nullable();
         $table->timestamps();
         $table->softDeletes();
       });

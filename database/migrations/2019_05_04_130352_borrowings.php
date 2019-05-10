@@ -18,9 +18,8 @@ class Borrowings extends Migration
         $table->unsignedInteger('borrower_id');
         $table->unsignedInteger('borrow_cycle_id');
         $table->double('amount');
-        $table->text('note');
-        $table->timestamp('datetime_paid');
-        $table->char('name', 100);
+        $table->text('note')->nullable();
+        $table->timestamp('datetime_paid')->nullable();
         $table->timestamps();
         $table->softDeletes();
       });
