@@ -23,36 +23,47 @@ class UserController extends GenericController
               'company' => []
             ]
           ],
-          'user_roles' => ['is_child' => true, 'validation_required' => false]
+          'user_roles' => ['is_child' => true, 'validation_required' => true],
+          'user_bio' => [],
+          'user_addresses' => [],
         ]
       ];
       $this->initGenericController();
       // $this->retrieveCustomQueryModel = function($queryModel){
-      //   if($this->user('user_type_id') >= 10){
-      //     $queryModel = $queryModel->join('company_users', 'company_users.user_id', '=', 'users.id');
-      //     return $queryModel->where('company_users.company_id', $this->user('company_id'));
+      //
+      //   if(config('payload.company_id') && config('payload.company_id') > 1){
+      //     $queryModel = $queryModel->leftJoin('company_users', 'company_users.user_id', '=', 'users.id');
+      //     return $queryModel->where('company_users.company_id', config('payload.company_id'));
+      //   }else if(config('payload.company_id')){
+      //     return $queryModel->where('users.id', config('payload.company_id'));
       //   }else{
       //     return $queryModel;
       //   }
-      // };
+      // }
     }
+
     public function create(Request $request){
       // printR($request->all());
 
       $entry = $request->all();
-      $entry['user_type_id'] = config('payload.user_type_id') == null || config('payload.user_type_id') >= 10 ? 10 : $entry['user_type_id'];
       $validation = new Core\GenericFormValidation($this->tableStructure, 'create');
-      if($entry['user_type_id'] >= 10 && config('payload.user_type_id') == null){
+      if(!config('payload.company_id')){
         $validation->additionalRule = ['company_code' => 'required|exists:companies,code'];
+        $entry['user_role'] = 101;
       }else{
         $validation->additionalRule = ['company_user.company_id' => 'required|exists:companies,id'];
+        if(config('payload.roles.1') == null){
+          $validation->additionalRule['user_role'] = ['required'];
+          $validation->additionalRule['user_role.id'] = 'required|gte:100';
+          $companyUser = isset($entry['company_user']) ? $entry['company_user'] : ['company_id' => config('payload.company_id')];
+          $entry['company_user'] = $companyUser;
+        }
       }
     // printR($entry);
-      $userRole = $entry['user_role'];
-      unset($entry['user_role']);
-      $this->responseGenerator->addDebug('user_role', $userRole);
 
       if($validation->isValid($entry)){
+        $userRole = $entry['user_role'];
+        unset($entry['user_role']);
         $companyUser = $entry['company_user'];
         unset($entry['company_user']);
         $genericCreate = new Core\GenericCreate($this->tableStructure, $this->model);
@@ -62,11 +73,21 @@ class UserController extends GenericController
           $this->tableStructure = [];
           $this->initGenericController();
           $genericCreate = new Core\GenericCreate($this->tableStructure, $this->model);
-          $companyID =  config('payload.user_type_id') == null || config('payload.user_type_id') >= 10 ? config('payload.company_id') : $entry['company_user']['company_id'];
-          if($entry['user_type_id'] >= 10 && config('payload.user_type_id') == null){
+          $companyID = null;
+
+          $status = 0;
+          if(config('payload.roles.1')){ // super admin
+            $companyID = $companyUser['company_id'];
+            $status = $entry['status'];
+          }else if(config('payload.roles.100')){ //company admin
+            $companyID = config('payload.company_id');
+            $status = $entry['status'];
+          }else{
             $company = (new App\Company())->where('code', $entry['company_code'])->get()->first()->toArray();
-            $companyID = $company['id'];
+            $companyID = $company['company_id'];
+
           }
+          $this->responseGenerator->addDebug('company', 'got here');
           $companyRoleEntry = [
             'company_id' => $companyID,
             'user_id' => $userResult['id'],
@@ -78,22 +99,37 @@ class UserController extends GenericController
             $this->tableStructure = [];
             $this->initGenericController();
             $genericCreate = new Core\GenericCreate($this->tableStructure, $this->model);
-            $roleID =  (config('payload') == null || config('payload.roles.1') == null) ? 101 : $userRole['id'];
+            $roleID =  (config('payload.roles') == null || (!config('payload.roles.1') && !config('payload.roles.100'))) ? 101 : $userRole['id'];
             $this->responseGenerator->addDebug('roleID', $roleID);
             $this->responseGenerator->addDebug('payload.roles.1', config('payload.roles.1'));
+            $this->responseGenerator->addDebug('payload.roles.100', config('payload.roles.100'));
             $userRoleEntry = [
               "user_id" => $userResult['id'],
               "role_id" => $roleID,
-              "company_id" => $companyUserResult['id']
+              "company_id" => $companyID
             ];
             $userRoleResult = $genericCreate->create($userRoleEntry);
+            if($roleID * 1 == 100){
+              $userRoleEntry = [
+                "user_id" => $userResult['id'],
+                "role_id" => 101,
+                "company_id" => $companyID
+              ];
+              $this->model = new App\UserRole();
+              $this->tableStructure = [];
+              $this->initGenericController();
+              $genericCreate = new Core\GenericCreate($this->tableStructure, $this->model);
+              $genericCreate->create($userRoleEntry);
+            }
             if($userRoleResult['id']){
               $this->responseGenerator->setSuccess([
                 'id' => $userResult['id'],
-                'company_user_id' => $companyUserResult['id'],
+                // 'company_user_id' => $companyUserResult['id'],
                 'user_role_id' => $userRoleResult['id']
               ]);
             }
+          }else{
+            $this->responseGenerator->addDebug('failed to create $companyUserResult', $companyRoleEntry);
           }
         }else{
           $this->responseGenerator->setSuccess([

@@ -27,7 +27,21 @@ $api_resource = function($apiResource){
     Route::post($apiResourceValue."/delete",$pascalCase."@delete");
   }
 };
-
+$custom_api = function($customAPIResource, $method = 'post'){
+  // print_r($customAPI);
+  for($x = 0; $x < count($customAPIResource); $x++){
+    $customAPI = $customAPIResource[$x];
+    $splitAPI = explode('/', $customAPIResource[$x]);
+    $pascalCase = preg_replace_callback("/(?:^|-)([a-z])/", function($matches) {
+        return strtoupper($matches[1]);
+    }, $splitAPI[0]) . 'Controller';
+    if($method == 'post'){
+      Route::post($customAPI, $pascalCase."@".$splitAPI[1]);
+    }else{
+      Route::get($customAPI, $pascalCase."@".$splitAPI[1]);
+    }
+  }
+};
 
 Route::get('/', function(){
   echo str_plural('registry');
@@ -46,6 +60,13 @@ $apiResource = [
   'company',
   'borrower',
   'borrow-cycle',
-  'borrowing'
+  'borrowing',
+  'country',
+  'region',
+  'city'
+];
+$customAPIResources = [
+  'borrow-cycle/end'
 ];
 $api_resource($apiResource);
+$custom_api($customAPIResources);

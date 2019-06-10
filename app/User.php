@@ -11,8 +11,7 @@ class User extends GenericModel
     // protected $fillable = ['user_id', 'first_name', 'middle_name', 'last_name', 'mobile_number', 'gender', 'birthdate', 'occupation'];
     protected $validationRules = [
       'email' => 'required|email|unique:users,email,except,id',
-      'password' => 'required|min:4',
-      'user_type_id' => 'numeric'
+      'password' => 'required|min:4'
     ];
     protected $defaultValue = [
       'middle_name' => ''
@@ -21,8 +20,8 @@ class User extends GenericModel
     public function systemGenerateValue($data){
       (isset($data['email'])) ? $data['username'] = $data['email'] : null;
       (isset($data['password'])) ? $data['password'] = Hash::make($data['password']) : null;
-      $data['user_type_id'] = $this->user('user_type_id') * 1 >= 10 ? $data['user_type_id'] : 10;
-      if(!isset($data['id']) || $data['id'] == 0){ // if create
+      $data['user_type_id'] = 1;
+      if((!isset($data['id']) || $data['id'] == 0) && !isset($data['status'])){ // if create
         $data['status'] = 0;
       }
       return $data;
@@ -43,8 +42,12 @@ class User extends GenericModel
     {
         return $this->hasOne('App\UserBasicInformation');
     }
-    public function user_bank_account()
+    public function user_bio()
     {
-        return $this->hasOne('App\userBankAccount')->orderBy('created_at', 'desc');
+        return $this->hasOne('App\UserBio');
+    }
+    public function user_addresses()
+    {
+        return $this->hasMany('App\UserAddress')->with(['region']);
     }
 }

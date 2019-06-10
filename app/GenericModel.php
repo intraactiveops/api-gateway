@@ -99,7 +99,7 @@ class GenericModel extends Model
 
       foreach($entry as $entryColumn => $entryValue){
         $value = $entryValue;
-        if($entryColumn == 'company_id' && $this->user('user_type_id') >= 10){
+        if($entryColumn == 'company_id' && config('payload.company_id') * 1 !== 1){
           $value = $this->user('company_id');
         }else if($entryValue == null){
           $value = isset($this->defaultValue[$entryColumn]) ? $this->defaultValue[$entryColumn] : $entryValue;
@@ -118,7 +118,7 @@ class GenericModel extends Model
     unset($entry['deleted_at']);
     $currentData = $this->where('id', $id)->get()->toArray();
     $withCompanyID = false;
-    if($this->user('user_type_id') >= 10){
+    if(config('payload.company_id') * 1 !== 1){
       if(isset($entry['company_id'])){
         $currentData[0]['company_id'] = $this->user('company_id');
         unset($entry['company_id']);

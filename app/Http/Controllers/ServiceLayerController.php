@@ -45,6 +45,7 @@ class ServiceLayerController extends Controller
         ]);
         $result = json_decode((string)$result->getBody(), true);
         $request['data'] = $result['data'];
+        $request['additional_data'] = $result['additional_data'];
         $request['debug'] = $result['debug'];
       } catch (GuzzleException $e) {
         $response = json_encode($e->getResponse()->getBody());

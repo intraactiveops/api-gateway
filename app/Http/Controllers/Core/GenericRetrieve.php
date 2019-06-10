@@ -94,9 +94,9 @@ class GenericRetrieve extends Controller
       }
       isset($requestQuery['sort']) ? $queryModel = $this->addSortStatement($queryModel, $requestQuery['sort'], $leftJoinedTable, $tableStructure) : null;
       if($tableStructure['table_name'] === $this->tableStructure['table_name']){
-
         if(isset($requestQuery['limit']) && isset2('offset', $requestQuery)){ // get the total page first
-          $this->totalResult = $queryModel->count();
+          $queryClone = clone $queryModel;
+          $this->totalResult =  $queryClone->count();
         }
         isset($requestQuery['limit']) ? $queryModel = $queryModel->limit($requestQuery['limit']) : null;
         (isset($requestQuery['offset']) && $requestQuery['offset'] >= 0) ? $queryModel = $queryModel->offset($requestQuery['offset']) : null;

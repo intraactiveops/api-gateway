@@ -13,7 +13,7 @@
 
 Route::get('/', function () {
     // return view('welcome');
-    echo 'test';
+    echo str_plural('bio');
 });
 Route::get('v1/', function(){
   echo 'Welcome to API v1';

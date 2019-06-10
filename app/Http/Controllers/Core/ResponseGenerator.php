@@ -41,7 +41,11 @@ class ResponseGenerator extends Controller
       }else{
         $this->response = ['data'=> $this->success];
         $this->response['debug'] = $this->debugMessages;
-        ($this->totalResult) ? $this->response['total_result'] = $this->totalResult : null;
+        $this->response['debug']['add'] = $this->totalResult;
+        $this->response['additional_data'] = [];
+
+
+        ($this->totalResult) ? $this->response['additional_data']['total_result'] = $this->totalResult : null;
         return response()->json($this->response, 200);
       }
 
