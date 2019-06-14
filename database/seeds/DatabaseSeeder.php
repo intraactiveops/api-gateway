@@ -11,9 +11,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        $this->call(DefaultServiceSeeder::class);
+        $this->call(ServiceRestore::class);
         $this->call(PredefinedCompanySeeder::class);
-        $this->call(PredefinedRoleSeeder::class);
+        // $this->call(PredefinedRoleSeeder::class);
+        $this->call(CountryLookUpSeeder::class);
         $this->call(UserSeeder::class);
     }
 }

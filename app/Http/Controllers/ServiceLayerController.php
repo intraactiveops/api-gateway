@@ -19,7 +19,7 @@ class ServiceLayerController extends Controller
             $resource = $this->requestResource($serviceActionRegistry, $request->all());
             return $this->generateResponse($resource);
           }else{
-            return response()->json(['error' => 'Unauthorized', 'token' => auth()->user()], 401)->header('Content-Type', $this->contentType);;
+            return response()->json(['error' => 'Unauthorized', 'token' => auth()->user(), 'token_data' => $this->userTokenData], 401)->header('Content-Type', $this->contentType);;
           }
         }else{ // service dont need token
           $resource = $this->requestResource($serviceActionRegistry, $request->all());

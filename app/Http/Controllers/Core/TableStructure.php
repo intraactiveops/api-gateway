@@ -29,7 +29,7 @@ class TableStructure
     if(isset($tableStructure['foreign_tables']) && count($tableStructure['foreign_tables'])){
       $treeMap = $treeMap == null ? $tableStructure['table_name'] : $treeMap.'.'.$treeMap;
       foreach($tableStructure['foreign_tables'] as $foreignTableName => $foreignTableStructure){
-        $foreignTableModelClassName = "App\\".strToPascal(str_singular($foreignTableName));
+        $foreignTableModelClassName = "App\\".(strToPascal(str_singular(isset($foreignTableStructure['true_table']) ? $foreignTableStructure['true_table'] : $foreignTableName)));
         $foreignTableStructure = $this->setColumnsDefault($foreignTableStructure, new $foreignTableModelClassName());
         $foreignTableStructure['model_name'] = $foreignTableModelClassName;
         $foreignTableStructure['table_name'] = str_plural($foreignTableName);

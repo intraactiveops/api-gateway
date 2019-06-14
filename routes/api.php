@@ -63,7 +63,15 @@ $apiResource = [
   'borrowing',
   'country',
   'region',
-  'city'
+  'city',
+  'user-educational-background',
+  'user-membership',
+  'user-award',
+  'user-professional-activity',
+  'social-media',
+  'user-social-media-link',
+  'user-contact-number',
+  'user-contact-list',
 ];
 $customAPIResources = [
   'borrow-cycle/end'

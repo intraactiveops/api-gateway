@@ -24,7 +24,7 @@ class UserController extends GenericController
             ]
           ],
           'user_roles' => ['is_child' => true, 'validation_required' => true],
-          'user_bio' => [],
+          'user_bio' => ['validation_required' => false],
           'user_addresses' => [],
         ]
       ];
