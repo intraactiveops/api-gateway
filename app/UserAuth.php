@@ -33,7 +33,10 @@ class UserAuth extends Authenticatable implements JWTSubject
   public function getJWTCustomClaims()
   {
     $companyUser = (new CompanyUser())->select(['company_id'])->where('user_id', $this->id)->orderBy('created_at', 'DESC')->get()->toArray();
-    $claims = [];
+    $claims = [
+      'company_id' => NULL,
+      'roles' => NULL
+    ];
     if(count($companyUser)){
       $companyID = $companyUser[0]['company_id'];
       $userRole = array_fill_keys(collect((new UserRole())->select(['role_id'])->where('user_id', $this->id)->where('company_id', $companyID)->get()->toArray())->pluck('role_id')->toArray(), true);
