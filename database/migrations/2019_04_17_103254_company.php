@@ -23,7 +23,7 @@ class Company extends Migration
       });
       Schema::table('user_roles', function (Blueprint $table) {
         $table->foreign('company_id')->references('id')->on('companies');
-      })
+      });
     }
 
     /**
