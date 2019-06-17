@@ -15,14 +15,14 @@ class DefaultServiceSeeder extends Seeder
         DB:: table('services')->truncate();
         DB:: table('service_actions')->truncate();
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
-
+        $baseUrl = (false) ? "localhost/intraactiveops/api" : "http://ec2-54-161-197-150.compute-1.amazonaws.com";
         $services = [
-          ["id" => 1, "description" => "User", "link" => "http://localhost/intraactiveops/api/api-gateway/public/api"],
-          ["id" => 2, "description" => "Service", "link" => "http://localhost/intraactiveops/api/api-gateway/public/api"],
-          ["id" => 3, "description" => "Auth", "link" => "http://localhost/intraactiveops/api/api-gateway/public/api"],
-          ["id" => 4, "description" => "Role", "link" => "http://localhost/intraactiveops/api/api-gateway/public/api"],
-          ["id" => 5, "description" => "Service Action", "link" => "http://localhost/intraactiveops/api/api-gateway/public/api"],
-          ["id" => 6, "description" => "Company", "link" => "http://localhost/intraactiveops/api/api-gateway/public/api"]
+          ["id" => 1, "description" => "User", "link" => $baseUrl . "/api-gateway/public/api"],
+          ["id" => 2, "description" => "Service", "link" => $baseUrl . "/api-gateway/public/api"],
+          ["id" => 3, "description" => "Auth", "link" => $baseUrl . "/api-gateway/public/api"],
+          ["id" => 4, "description" => "Role", "link" => $baseUrl . "/api-gateway/public/api"],
+          ["id" => 5, "description" => "Service Action", "link" => $baseUrl . "/api-gateway/public/api"],
+          ["id" => 6, "description" => "Company", "link" => $baseUrl . "/api-gateway/public/api"]
         ];
         $actions = [
           // USER
