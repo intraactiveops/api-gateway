@@ -24,7 +24,7 @@ class UserRoleTable extends Migration
       Schema::table('user_roles', function (Blueprint $table) {
         $table->foreign('user_id')->references('id')->on('users');
         $table->foreign('role_id')->references('id')->on('roles');
-        $table->foreign('company_id')->references('id')->on('companies');
+        
       });
     }
 

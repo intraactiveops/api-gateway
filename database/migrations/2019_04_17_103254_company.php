@@ -21,6 +21,9 @@ class Company extends Migration
           $table->timestamps();
           $table->softDeletes();
       });
+      Schema::table('user_roles', function (Blueprint $table) {
+        $table->foreign('company_id')->references('id')->on('companies');
+      })
     }
 
     /**
