@@ -40,7 +40,6 @@ class GenericRetrieve extends Controller
     public function executeQuery(){
       if($this->customQueryModel){
         $customQueryModel = $this->customQueryModel;
-        // printR($tae($this->model));
         $this->model = $customQueryModel($this->model);
       }
       $this->model = $this->addQueryStatements($this->model, $this->requestQuery, $this->tableStructure);
@@ -76,7 +75,7 @@ class GenericRetrieve extends Controller
           if(isset($tableStructure['columns'][$selectIndex]['formula'])){
             $slectedColumn = $tableStructure['columns'][$selectIndex]['formula'];
           }else{
-            $slectedColumn = $tableStructure['table_name'].".".$selectIndex;
+            $slectedColumn = $tableStructure['true_table'].".".$selectIndex;
           }
 
           $queryModel = $queryModel->addSelect(DB::raw("$slectedColumn as ".$selectIndex));
@@ -129,7 +128,6 @@ class GenericRetrieve extends Controller
         $column = $sort['column'];
 
         $queryModel = $this->addLeftJoin($queryModel, $leftJoinedTable, $column, $tableStructure); // the column is passed by address because the function will change the its value
-        // printR($tableStructure, 'table structure');
         $queryModel = $queryModel->orderBy(DB::raw($column), $sort['order']);
       }
       return $queryModel;
@@ -182,7 +180,7 @@ class GenericRetrieve extends Controller
         if(is_numeric($selectIndex) && isset($tableStructure['columns'][$select])){ // if column
           $cleanRequestQuery[$select] = null; // transform for numeric index to column index with null value
         }else if(isset($tableStructure['foreign_tables'][$selectIndex]) && isset($select['select'])){ // if with
-          $parent = $tableStructure['table_name'];
+          $parent = $tableStructure['true_table'];
           if(!($tableStructure['foreign_tables'][$selectIndex]['is_child'])){
             $cleanRequestQuery[str_singular($selectIndex)."_id"] = null;
             $parent = null;

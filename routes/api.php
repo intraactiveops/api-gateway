@@ -72,6 +72,9 @@ $apiResource = [
   'user-social-media-link',
   'user-contact-number',
   'user-contact-list',
+  'user-follower',
+  'user-profile-picture',
+  'newsfeed-post'
 ];
 $customAPIResources = [
   'borrow-cycle/end'

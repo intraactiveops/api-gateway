@@ -5,10 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App;
 
-class UserContactListController extends GenericController
+class UserFollowerController extends GenericController
 {
   function __construct(){
-    $this->model = new App\UserContactList();
+    $this->model = new App\UserFollower();
     $this->tableStructure = [
       'columns' => [
       ],
@@ -21,7 +21,7 @@ class UserContactListController extends GenericController
             ]
           ]
         ],
-        "contact_user" => [
+        "follower_user" => [
           'true_table' => 'users',
           'is_child' => false,
           'foreign_tables' => [

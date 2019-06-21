@@ -94,7 +94,7 @@ class ServiceLayerController extends Controller
         $roleAccessList = [];
         $userAccessList = [];
         $userAccessList = (new App\UserAccessList())->where('user_id', $user['id'])->where('service_action_registry_id', $serviceActionRegistryID)->get()->toArray();
-        if(count($user['role_list'])){
+        if($user['role_list'] && count($user['role_list'])){
           $roleAccessList = (new App\RoleAccessList())->whereIn('role_id', $user['role_list'])->where('service_action_registry_id', $serviceActionRegistryID)->get()->toArray();
         }
         if(count($userAccessList) || count($roleAccessList)){

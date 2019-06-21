@@ -26,6 +26,10 @@ class UserController extends GenericController
           'user_roles' => ['is_child' => true, 'validation_required' => true],
           'user_bio' => ['validation_required' => false],
           'user_addresses' => [],
+          'user_educational_backgrounds' => [],
+          'user_memberships' => [],
+          'user_awards' => [],
+          'user_professional_activities' => [],
         ]
       ];
       $this->initGenericController();

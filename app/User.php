@@ -50,4 +50,20 @@ class User extends GenericModel
     {
         return $this->hasMany('App\UserAddress')->with(['region']);
     }
+    public function user_educational_backgrounds()
+    {
+        return $this->hasMany('App\UserEducationalBackground');
+    }
+    public function user_memberships()
+    {
+        return $this->hasMany('App\UserMembership');
+    }
+    public function user_awards()
+    {
+        return $this->hasMany('App\UserAward');
+    }
+    public function user_professional_activities()
+    {
+        return $this->hasMany('App\UserProfessionalActivity');
+    }
 }

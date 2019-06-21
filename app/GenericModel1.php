@@ -100,7 +100,7 @@ class GenericModel extends Model
       foreach($entry as $entryColumn => $entryValue){
         $value = $entryValue;
         if($entryColumn == 'company_id' && config('payload.company_id') * 1 !== 1){
-          $value = $this->user('company_id');
+          $value = $this->userSession('company_id');
         }else if($entryValue == null){
           $value = isset($this->defaultValue[$entryColumn]) ? $this->defaultValue[$entryColumn] : $entryValue;
         }
@@ -120,7 +120,7 @@ class GenericModel extends Model
     $withCompanyID = false;
     if(config('payload.company_id') * 1 !== 1){
       if(isset($entry['company_id'])){
-        $currentData[0]['company_id'] = $this->user('company_id');
+        $currentData[0]['company_id'] = $this->userSession('company_id');
         unset($entry['company_id']);
       }
       $withCompanyID = isset($this->getTableColumns()['company_id']);
@@ -150,7 +150,7 @@ class GenericModel extends Model
     unset($currentData[0]['updated_at']);
     unset($currentData[0]['deleted_at']);
     if($withCompanyID){
-      return $this->where("id", $id)->where('company_id', $this->user('company_id'))->update($currentData[0]);
+      return $this->where("id", $id)->where('company_id', $this->userSession('company_id'))->update($currentData[0]);
     }else{
       return $this->where("id", $id)->update($currentData[0]);
     }
@@ -162,7 +162,7 @@ class GenericModel extends Model
       return $this->delete();
     }
   }
-  public function user($key = "id"){
+  public function userSession($key = "id"){
     if(config('payload')){
       $user = config('payload');
 

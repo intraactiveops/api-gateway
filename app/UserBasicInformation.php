@@ -18,4 +18,6 @@ class UserBasicInformation extends GenericModel
       }
       return $entry;
     }
+
+    
 }
