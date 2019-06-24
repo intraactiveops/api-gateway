@@ -13,14 +13,14 @@ class UserContactList extends Migration
      */
     public function up()
     {
-      Schema::create('user_contact_lists', function(Blueprint $table){
+      Schema::create('user_contacts', function(Blueprint $table){
         $table->increments('id');
         $table->unsignedBigInteger('user_id');
         $table->unsignedBigInteger('contact_user_id');
         $table->timestamps();
         $table->softDeletes();
       });
-      Schema::table('user_contact_lists', function (Blueprint $table) {
+      Schema::table('user_contacts', function (Blueprint $table) {
         $table->foreign('user_id')->references('id')->on('users');
         $table->foreign('contact_user_id')->references('id')->on('users');
       });
@@ -33,6 +33,6 @@ class UserContactList extends Migration
      */
     public function down()
     {
-        //
+        Schema::dropIfExists('user_contacts');
     }
 }

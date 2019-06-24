@@ -5,10 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App;
 
-class UserMembershipController extends GenericController
+class UserOrganizationController extends GenericController
 {
   function __construct(){
-    $this->model = new App\UserMembership();
+    $this->model = new App\UserOrganization();
     $this->tableStructure = [
       'columns' => [
       ],

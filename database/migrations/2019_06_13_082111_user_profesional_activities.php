@@ -34,6 +34,6 @@ class UserProfesionalActivities extends Migration
      */
     public function down()
     {
-        //
+        Schema::dropIfExists('user_professional_activities');
     }
 }

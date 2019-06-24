@@ -23,6 +23,7 @@ class UserSocialMediaLinks extends Migration
       });
       Schema::table('user_social_media_links', function (Blueprint $table) {
         $table->foreign('user_id')->references('id')->on('users');
+        $table->foreign('social_media_id')->references('id')->on('social_media');
       });
     }
 
@@ -33,6 +34,6 @@ class UserSocialMediaLinks extends Migration
      */
     public function down()
     {
-        //
+        Schema::dropIfExists('user_social_media_links');
     }
 }

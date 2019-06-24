@@ -5,10 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App;
 
-class UserContactListController extends GenericController
+class UserContactController extends GenericController
 {
   function __construct(){
-    $this->model = new App\UserContactList();
+    $this->model = new App\UserContact();
     $this->tableStructure = [
       'columns' => [
       ],

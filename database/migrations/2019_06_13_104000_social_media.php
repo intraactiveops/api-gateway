@@ -22,9 +22,7 @@ class SocialMedia extends Migration
         $table->timestamps();
         $table->softDeletes();
       });
-      Schema::table('user_social_media_links', function (Blueprint $table) {
-        $table->foreign('social_media_id')->references('id')->on('social_media');
-      });
+      
     }
 
     /**
@@ -34,6 +32,6 @@ class SocialMedia extends Migration
      */
     public function down()
     {
-        //
+        Schema::dropIfExists('social_media');
     }
 }

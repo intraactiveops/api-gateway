@@ -36,6 +36,6 @@ class UserEducationalBackground extends Migration
      */
     public function down()
     {
-        //
+        Schema::dropIfExists('user_educational_backgrounds');
     }
 }

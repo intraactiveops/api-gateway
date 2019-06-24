@@ -13,17 +13,17 @@ class UserMemberships extends Migration
      */
     public function up()
     {
-      Schema::create('user_memberships', function(Blueprint $table){
+      Schema::create('user_organizations', function(Blueprint $table){
         $table->increments('id');
         $table->unsignedBigInteger('user_id');
         $table->smallInteger('year_started');
         $table->smallInteger('year_ended')->nullable();
-        $table->text('organization_name');
+        $table->text('name');
         $table->text('address');
         $table->timestamps();
         $table->softDeletes();
       });
-      Schema::table('user_memberships', function (Blueprint $table) {
+      Schema::table('user_organizations', function (Blueprint $table) {
         $table->foreign('user_id')->references('id')->on('users');
       });
     }
@@ -35,6 +35,6 @@ class UserMemberships extends Migration
      */
     public function down()
     {
-        //
+        Schema::dropIfExists('user_organizations');
     }
 }

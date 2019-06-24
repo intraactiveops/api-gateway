@@ -33,6 +33,6 @@ class UserFollower extends Migration
      */
     public function down()
     {
-        //
+        Schema::dropIfExists('user_followers');
     }
 }

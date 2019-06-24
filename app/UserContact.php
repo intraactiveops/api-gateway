@@ -4,7 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class UserContactList extends GenericModel
+class UserContact extends GenericModel
 {
   public $validationRules = ['contact_user_id' => "required|exists:users,id"];
   public $validationRuleNotRequired = ['user_id'];

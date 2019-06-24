@@ -27,7 +27,7 @@ class UserController extends GenericController
           'user_bio' => ['validation_required' => false],
           'user_addresses' => [],
           'user_educational_backgrounds' => [],
-          'user_memberships' => [],
+          'user_organizations' => [],
           'user_awards' => [],
           'user_professional_activities' => [],
         ]

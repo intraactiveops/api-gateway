@@ -35,6 +35,6 @@ class UserContactNumbers extends Migration
      */
     public function down()
     {
-        //
+        Schema::dropIfExists('user_contact_numbers');
     }
 }
