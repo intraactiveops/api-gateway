@@ -54,7 +54,7 @@ class User extends GenericModel
     {
         return $this->hasMany('App\UserEducationalBackground');
     }
-    public function user_memberships()
+    public function user_organizations()
     {
         return $this->hasMany('App\UserMembership');
     }
