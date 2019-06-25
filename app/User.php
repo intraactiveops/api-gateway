@@ -56,7 +56,7 @@ class User extends GenericModel
     }
     public function user_organizations()
     {
-        return $this->hasMany('App\UserMembership');
+        return $this->hasMany('App\UserOrganization');
     }
     public function user_awards()
     {
