@@ -4,7 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class UserMembership extends GenericModel
+class UserOrganization extends GenericModel
 {
   public $validationRules = [
     "year_started" => 'numeric|min:1521|required'
