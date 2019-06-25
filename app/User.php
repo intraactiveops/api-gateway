@@ -66,4 +66,12 @@ class User extends GenericModel
     {
         return $this->hasMany('App\UserProfessionalActivity');
     }
+    public function user_social_media_links()
+    {
+        return $this->hasMany('App\UserSocialMediaLink');
+    }
+    public function user_contact_number()
+    {
+        return $this->hasOne('App\UserContactNumber');
+    }
 }

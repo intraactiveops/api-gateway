@@ -30,6 +30,8 @@ class UserController extends GenericController
           'user_organizations' => [],
           'user_awards' => [],
           'user_professional_activities' => [],
+          'user_social_media_links' => [],
+          'user_contact_number' => [],
         ]
       ];
       $this->initGenericController();
