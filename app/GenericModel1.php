@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
-class GenericModel extends Model
+class GenericModel1 extends Model
 {
   use SoftDeletes;
   public $parent = [];
+  public $useSessionCompanyID = true;
   protected $validationRules = []; // model level validation rule
   protected $validationRuleNotRequired = [];
   private $defaultValidationInitialized = false;
@@ -99,9 +100,9 @@ class GenericModel extends Model
 
       foreach($entry as $entryColumn => $entryValue){
         $value = $entryValue;
-        if($entryColumn == 'company_id' && config('payload.company_id') * 1 !== 1){
+        if($this->useSessionCompanyID && ($entryColumn == 'company_id' && config('payload.company_id') * 1 !== 1)){
           $value = $this->userSession('company_id');
-        }else if($entryValue == null){
+        }else{
           $value = isset($this->defaultValue[$entryColumn]) ? $this->defaultValue[$entryColumn] : $entryValue;
         }
         $this->$entryColumn = $value;

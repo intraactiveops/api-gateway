@@ -15,7 +15,6 @@ class GenericCreate extends Controller
     $this->model = $model;
   }
   public function create($entry){
-
     $result = $this->createEntryRecursively($entry, $this->model,$this->tableStructure);
     return $result;
   }

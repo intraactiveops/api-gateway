@@ -23,7 +23,7 @@ class UserController extends GenericController
               'company' => []
             ]
           ],
-          'user_roles' => ['is_child' => true, 'validation_required' => true],
+          'user_roles' => ['is_child' => true],
           'user_bio' => ['validation_required' => false],
           'user_addresses' => [],
           'user_educational_backgrounds' => [],
@@ -32,6 +32,9 @@ class UserController extends GenericController
           'user_professional_activities' => [],
           'user_social_media_links' => [],
           'user_contact_number' => [],
+          'user_profile_picture' => [],
+          'user_followers' => [],
+          'user_contacts' => []
         ]
       ];
       $this->initGenericController();
@@ -52,6 +55,7 @@ class UserController extends GenericController
       // printR($request->all());
 
       $entry = $request->all();
+      // $entry['email'] = rand().'@yahoo.com';
       $validation = new Core\GenericFormValidation($this->tableStructure, 'create');
       if(!config('payload.company_id')){
         $validation->additionalRule = ['company_code' => 'required|exists:companies,code'];
@@ -59,8 +63,8 @@ class UserController extends GenericController
       }else{
         $validation->additionalRule = ['company_user.company_id' => 'required|exists:companies,id'];
         if(config('payload.roles.1') == null){
-          $validation->additionalRule['user_role'] = ['required'];
-          $validation->additionalRule['user_role.id'] = 'required|gte:100';
+          // $validation->additionalRule['user_role'] = ['required'];
+          // $validation->additionalRule['user_role.id'] = 'required|gte:100';
           $companyUser = isset($entry['company_user']) ? $entry['company_user'] : ['company_id' => config('payload.company_id')];
           $entry['company_user'] = $companyUser;
         }
@@ -68,9 +72,7 @@ class UserController extends GenericController
     // printR($entry);
 
       if($validation->isValid($entry)){
-        $userRole = $entry['user_role'];
-        unset($entry['user_role']);
-        $companyUser = $entry['company_user'];
+        $companyUser = isset($entry['company_user']) ? $entry['company_user'] : [];
         unset($entry['company_user']);
         $genericCreate = new Core\GenericCreate($this->tableStructure, $this->model);
         $userResult = $genericCreate->create($entry);
@@ -90,18 +92,22 @@ class UserController extends GenericController
             $status = $entry['status'];
           }else{
             $company = (new App\Company())->where('code', $entry['company_code'])->get()->first()->toArray();
-            $companyID = $company['company_id'];
 
+            $companyID = $company['id'];
+            $this->model->useSessionCompanyID = false;
           }
           $this->responseGenerator->addDebug('company', 'got here');
-          $companyRoleEntry = [
+          $companUserEntry = [
             'company_id' => $companyID,
             'user_id' => $userResult['id'],
-            'status' => 0 // not verified
+            'status' => $status // not verified
           ];
-          $companyUserResult = $genericCreate->create($companyRoleEntry);
+          $companyUserResult = $genericCreate->create($companUserEntry);
           if($companyUserResult['id']){
             $this->model = new App\UserRole();
+            if($status === 0){ // registration
+              $this->model->useSessionCompanyID = false;
+            }
             $this->tableStructure = [];
             $this->initGenericController();
             $genericCreate = new Core\GenericCreate($this->tableStructure, $this->model);

@@ -20,6 +20,7 @@ class UserProfilePictureController extends GenericController
     ];
     $this->initGenericController();
   }
+
   public function create(Request $request){
     $requestData = $request->all();
     // $resultObject = $this->createUpdateEntry($requestData);
@@ -29,8 +30,10 @@ class UserProfilePictureController extends GenericController
     ];
     $validation = new Core\GenericFormValidation($this->tableStructure, 'create');
     $validation->additionalRule = [
-      'image_size' => 'required|max:1000000', // 1MB
-      'image_type' => 'required|in:jpg,jpeg,png',
+      'original_picture.size' => 'numeric|max:5000000', // 5MB
+      'original_picture.type' => 'in:image/jpg,image/jpeg,image/png',
+      'cropped_picture.size' => 'required|numeric|max:1000000', // 1MB
+      'cropped_picture.type' => 'required|in:png',
     ];
     if(!$validation->isValid($requestData)){
       $resultObject['fail'] = [
@@ -46,7 +49,7 @@ class UserProfilePictureController extends GenericController
     if($resultObject['success']){
       try {
         $param = [
-          "expected_file_quantity" => 1,
+          "expected_file_quantity" => 2,
           "note" => 'profile picture'
         ];
         $client = new Client(); //GuzzleHttp\Client
@@ -54,11 +57,11 @@ class UserProfilePictureController extends GenericController
           'json' => $param
         ]);
         $result = json_decode((string)$result->getBody(), true);
-        $resultObject['success']['ticket_id'] = $result['data']['id'];
+        $resultObject['success']['upload_ticket_id'] = $result['data']['id'];
         $resultObject['success']['upload_location'] = $result['data']['location'];
         $this->responseGenerator->setSuccess($resultObject['success']);
-
       } catch (GuzzleException $e) {
+        // echo getenv('FILE_SERVER').'/v1/get-ticket';
         if($e->getResponse()->getStatusCode() == 422){ // validation error
           $response = json_decode((string)$e->getResponse()->getBody(), true);
           $this->responseGenerator->setFail(['code' => 422, "message" => $response]);
@@ -67,6 +70,19 @@ class UserProfilePictureController extends GenericController
     }else{
       $this->responseGenerator->setSuccess($resultObject['success']);
       $this->responseGenerator->setFail($resultObject['fail']);
+    }
+    return $this->responseGenerator->generate();
+  }
+  public function update(Request $request){
+    if(!$this->checkAuthenticationRequirement($this->basicOperationAuthRequired["update"])){
+      return $this->responseGenerator->generate();
+    }
+    $requestData = $request->all();
+    $resultObject = $this->createUpdateEntry($requestData, "update");
+    $this->responseGenerator->setSuccess($resultObject['success']);
+    $this->responseGenerator->setFail($resultObject['fail']);
+    if($resultObject['success']){
+      (new App\UserProfilePicture())->where("id", '!=', $request->input('id'))->where('user_id', config('payload.id'))->delete();
     }
     return $this->responseGenerator->generate();
   }

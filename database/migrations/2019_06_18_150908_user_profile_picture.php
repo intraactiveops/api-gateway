@@ -17,6 +17,7 @@ class UserProfilePicture extends Migration
         $table->increments('id');
         $table->unsignedBigInteger('user_id');
         $table->text('file_name')->nullable();
+        $table->text('thumbnail_file_name')->nullable();
         $table->timestamps();
         $table->softDeletes();
       });

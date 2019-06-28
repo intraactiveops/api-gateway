@@ -74,4 +74,16 @@ class User extends GenericModel
     {
         return $this->hasOne('App\UserContactNumber');
     }
+    public function user_profile_picture()
+    {
+        return $this->hasOne('App\UserProfilePicture');
+    }
+    public function user_followers()
+    {
+        return $this->hasMany('App\UserFollower');
+    }
+    public function user_contacts()
+    {
+        return $this->hasMany('App\UserContact', 'contact_user_id');
+    }
 }
