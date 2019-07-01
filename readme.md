@@ -4,9 +4,12 @@ API Gateway enables microservice architecture in the API Resources. The Gateway 
 ## Installation
 This project uses Laravel framework. Follow the steps for the basic installation:
 1. composer install
-2. composer dump-autoload
-3. composer update
-4. php artisan key:generate
-5. php artisan config:cache
-6. php artisan migrate
-7. php artisan db:seed
+2. git submodule update --init --recursive
+3. git submodule update --recursive --remote
+4. composer dump-autoload
+5. composer update
+6. php artisan key:generate
+7. php artisan jwt:secret
+8. php artisan config:cache
+9. php artisan migrate
+10. php artisan db:seed
