@@ -17,8 +17,7 @@ class ServiceRestore extends Seeder
       DB::table('roles')->truncate();
       DB::table('role_access_lists')->truncate();
       DB::statement('SET FOREIGN_KEY_CHECKS=1;');
-      $baseUrl = URL::to(env('APP_SERVER_LOCATION'));
-      echo "Base URL:".$baseUrl."\n";
+      $baseUrl = env('APP_SERVER_LOCATION')
       $services = json_decode(str_replace('http:\/\/localhost\/intraactiveops\/api', $baseUrl, Storage::disk('local')->get('bu\services.json')), true);
       $serviceAction = json_decode(Storage::disk('local')->get('bu\service_actions.json'), true);
       $roles = json_decode(Storage::disk('local')->get('bu\roles.json'), true);
