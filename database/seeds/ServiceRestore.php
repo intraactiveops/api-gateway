@@ -11,13 +11,15 @@ class ServiceRestore extends Seeder
      */
     public function run()
     {
+      // echo URL::to(env('APP_SERVER_LOCATION'));
+      // return false;
       DB::statement('SET FOREIGN_KEY_CHECKS=0;');
       DB::table('services')->truncate();
       DB::table('service_actions')->truncate();
       DB::table('roles')->truncate();
       DB::table('role_access_lists')->truncate();
       DB::statement('SET FOREIGN_KEY_CHECKS=1;');
-      $baseUrl = (true) ? "localhost/intraactiveops/api" : "http:\/\/ec2-54-161-197-150.compute-1.amazonaws.com";
+      $baseUrl = URL::to(env('APP_SERVER_LOCATION'));
       $services = json_decode(str_replace('http:\/\/localhost\/intraactiveops\/api', $baseUrl, Storage::disk('local')->get('bu\services.json')), true);
       $serviceAction = json_decode(Storage::disk('local')->get('bu\service_actions.json'), true);
       $roles = json_decode(Storage::disk('local')->get('bu\roles.json'), true);
