@@ -20,9 +20,7 @@ Route::get('v1/', function(){
 });
 Route::post('v1/{module}/{function}', "ServiceLayerController@index");
 Route::group([
-
     'prefix' => 'auth'
-
 ], function ($router) {
     Route::get('/', function(){
       echo 'Auth';
