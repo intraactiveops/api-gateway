@@ -61,8 +61,10 @@ class UserProfilePictureController extends GenericController
         $resultObject['success']['upload_location'] = $result['data']['location'];
         $this->responseGenerator->setSuccess($resultObject['success']);
       } catch (GuzzleException $e) {
-        // echo getenv('FILE_SERVER').'/v1/get-ticket';
-        if($e->getResponse()->getStatusCode() == 422){ // validation error
+        if(!$e->getResponse()){
+          echo getenv('FILE_SERVER').'/v1/get-ticket';
+
+        }else if($e->getResponse()->getStatusCode() == 422){ // validation error
           $response = json_decode((string)$e->getResponse()->getBody(), true);
           $this->responseGenerator->setFail(['code' => 422, "message" => $response]);
         }
