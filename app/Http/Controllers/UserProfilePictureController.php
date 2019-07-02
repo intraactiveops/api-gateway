@@ -62,8 +62,8 @@ class UserProfilePictureController extends GenericController
         $this->responseGenerator->setSuccess($resultObject['success']);
       } catch (GuzzleException $e) {
         if(!$e->getResponse()){
-          echo getenv('FILE_SERVER').'/v1/get-ticket';
-
+          $this->responseGenerator->addDebug('linkgetenv', getenv('FILE_SERVER').'/v1/get-ticket');
+          $this->responseGenerator->addDebug('linkenv', env('FILE_SERVER').'/v1/get-ticket');
         }else if($e->getResponse()->getStatusCode() == 422){ // validation error
           $response = json_decode((string)$e->getResponse()->getBody(), true);
           $this->responseGenerator->setFail(['code' => 422, "message" => $response]);
