@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Post extends GenericModel
 {
-  protected $validationRuleNotRequired = ['posted_from_address'];
+  protected $validationRuleNotRequired = ['title', 'text', 'posted_from_address'];
   public function post_reactions()
   {
       return $this->hasMany('App\PostReaction');

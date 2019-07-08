@@ -15,8 +15,8 @@ class Post extends Migration
     {
       Schema::create('posts', function(Blueprint $table){
         $table->bigIncrements('id');
-        $table->char('title', 200);
-        $table->text('text');
+        $table->char('title', 200)->nullable();
+        $table->text('text')->nullable();;
         $table->text('posted_from_address')->nullable();
         $table->timestamps();
         $table->softDeletes();

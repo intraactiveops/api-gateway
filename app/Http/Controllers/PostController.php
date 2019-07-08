@@ -13,8 +13,8 @@ class PostController extends GenericController
       'columns' => [
       ],
       'foreign_tables' => [
-        'post_reactions' => [],
-        'post_comments' => []
+        // 'post_reactions' => [],
+        // 'post_comments' => []
       ]
     ];
     $this->initGenericController();
