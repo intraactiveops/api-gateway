@@ -10,16 +10,31 @@ class NewsfeedPostController extends GenericController
   function __construct(){
     $this->model = new App\NewsfeedPost();
     $this->tableStructure = [
-      'columns' => [
-      ],
+      'columns' => [],
       'foreign_tables' => [
-        'user' => [
+        'post' => [
           'foreign_tables' => [
-            'user_basic_information' => [
+            'post_user_tags' => [
+              'foreign_tables' => [
+                'user' => [
+                  'foreign_tables' => [
+                    'user_basic_information' => []
+                  ]
+                ]
+              ]
             ]
           ]
         ],
-        'post' => []
+        'user' => [
+          'foreign_tables' => [
+            'user_basic_information' => [],
+            'user_addresses' => [
+              'region_country' => [],
+              'region' => []
+            ],
+            'user_profile_picture' => []
+          ]
+        ]
       ]
     ];
     $this->initGenericController();

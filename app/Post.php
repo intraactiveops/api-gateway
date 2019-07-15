@@ -9,10 +9,18 @@ class Post extends GenericModel
   protected $validationRuleNotRequired = ['title', 'text', 'posted_from_address'];
   public function post_reactions()
   {
-      return $this->hasMany('App\PostReaction');
+    return $this->hasMany('App\PostReaction');
   }
   public function post_comments()
   {
-      return $this->hasMany('App\PostComments');
+    return $this->hasMany('App\PostComment');
+  }
+  public function post_user_tags()
+  {
+    return $this->hasMany('App\PostUserTag');
+  }
+  public function user()
+  {
+      return $this->belongsTo('App\User');
   }
 }

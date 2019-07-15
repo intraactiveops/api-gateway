@@ -26,6 +26,7 @@ class GenericRetrieve extends Controller
     public $totalResult = null;
     public $resultArray = null;
     public $customQueryModel = null;
+    public $isleftJoined = false;
     public function __construct($tableStructure, $model, $requestQuery, $customQueryModel = null){
       $this->tableStructure = $tableStructure;
       $this->model = $model;
@@ -128,7 +129,15 @@ class GenericRetrieve extends Controller
         $column = $sort['column'];
 
         $queryModel = $this->addLeftJoin($queryModel, $leftJoinedTable, $column, $tableStructure); // the column is passed by address because the function will change the its value
-        $queryModel = $queryModel->orderBy(DB::raw($column), $sort['order']);
+        $explodedColumn = explode(".", $column);
+        $rawColumn = $column;
+        if(count($explodedColumn) > 1){
+          if(isset($this->tableStructure['foreign_tables'][$explodedColumn[0]]['columns'][$explodedColumn[1]]['formula'])){
+            $rawColumn = $this->tableStructure['foreign_tables'][$explodedColumn[0]]['columns'][$explodedColumn[1]]['formula'];
+            // $queryModel->addSelect(DB::raw($rawColumn. ' AS `'. $column.'`'));
+          }
+        }
+        $queryModel = $queryModel->orderBy(DB::raw($rawColumn), $sort['order']);
       }
       return $queryModel;
     }
@@ -137,6 +146,11 @@ class GenericRetrieve extends Controller
 
     */
     public function addLeftJoin($queryModel, &$leftJoinedTable, &$column, $tableStructure){
+      if($this->isleftJoined){
+        return $queryModel;
+      }else{
+        $this->isleftJoined = true;
+      }
       $columnSplitted = explode(".", $column);
       if(count($columnSplitted) == 2){ // table.column
         $table = $columnSplitted[0];

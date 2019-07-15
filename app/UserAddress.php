@@ -15,4 +15,8 @@ class UserAddress extends GenericModel
   {
       return $this->belongsTo('App\Region')->with(['country']);
   }
+  public function region_country()
+  {
+      return $this->belongsTo('App\Region')->with(['country']);
+  }
 }

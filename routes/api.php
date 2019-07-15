@@ -33,7 +33,7 @@ $custom_api = function($customAPIResource, $method = 'post'){
     $customAPI = $customAPIResource[$x];
     $splitAPI = explode('/', $customAPIResource[$x]);
     $pascalCase = preg_replace_callback("/(?:^|-)([a-z])/", function($matches) {
-        return strtoupper($matches[1]);
+      return strtoupper($matches[1]);
     }, $splitAPI[0]) . 'Controller';
     if($method == 'post'){
       Route::post($customAPI, $pascalCase."@".$splitAPI[1]);
