@@ -14,6 +14,7 @@ class NewsfeedPostController extends GenericController
       'foreign_tables' => [
         'post' => [
           'foreign_tables' => [
+            'post_attachments' => [],
             'post_user_tags' => [
               'foreign_tables' => [
                 'user' => [

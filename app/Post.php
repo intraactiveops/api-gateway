@@ -19,6 +19,10 @@ class Post extends GenericModel
   {
     return $this->hasMany('App\PostUserTag');
   }
+  public function post_attachments()
+  {
+    return $this->hasMany('App\PostAttachment');
+  }
   public function user()
   {
       return $this->belongsTo('App\User');
