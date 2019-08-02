@@ -75,7 +75,11 @@ $apiResource = [
   'user-follower',
   'user-profile-picture',
   'newsfeed-post',
-  'post'
+  'post',
+  'channel',
+  'channel-participant',
+  'channel-message',
+  'channel-message-post'
 ];
 $customAPIResources = [
   'borrow-cycle/end'

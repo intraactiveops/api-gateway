@@ -49,8 +49,10 @@ class GenericController extends Controller
       $this->tableStructure = (new Core\TableStructure($this->tableStructure, $this->model))->getStructure();
       $this->responseGenerator = new Core\ResponseGenerator();
 
-      if(config()->set('payload') == null){
+      if(config()->set('payload') == null && requester::input('PAYLOAD')){
         config()->set('payload', requester::input('PAYLOAD'));
+      }else{
+        config()->set('payload', ['id' => 1]); // set sample config
       }
       // $this->responseGenerator->addDebug('request', requester::input());
       $this->responseGenerator->addDebug('payload', config('payload'));
