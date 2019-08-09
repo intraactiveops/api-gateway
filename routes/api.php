@@ -82,7 +82,8 @@ $apiResource = [
   'channel-message-post'
 ];
 $customAPIResources = [
-  'borrow-cycle/end'
+  'borrow-cycle/end',
+  'channel/search'
 ];
 $api_resource($apiResource);
 $custom_api($customAPIResources);

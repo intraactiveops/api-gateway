@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5328029dc48f40da698d755fc50072aa",
+    "content-hash": "2aeffb872f4ac69142cb9de2a9f1dab8",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -1107,6 +1107,52 @@
                 "storage"
             ],
             "time": "2019-03-30T13:22:34+00:00"
+        },
+        {
+            "name": "meniam/permutation",
+            "version": "V1.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/meniam/permutation.git",
+                "reference": "79f20a29ba73b683898fdbbfff7e984a76fd8003"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/meniam/permutation/zipball/79f20a29ba73b683898fdbbfff7e984a76fd8003",
+                "reference": "79f20a29ba73b683898fdbbfff7e984a76fd8003",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4.0"
+            },
+            "require-dev": {
+                "php": ">=5.4.0",
+                "phpunit/phpunit": "^6.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Permutation": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Eugene Myazin",
+                    "email": "eugene.myazin@gmail.com"
+                }
+            ],
+            "description": "Permutation algorithm on PHP",
+            "homepage": "https://github.com/meniam/permutation",
+            "keywords": [
+                "math",
+                "permutation",
+                "php"
+            ],
+            "time": "2017-02-13T16:08:18+00:00"
         },
         {
             "name": "monolog/monolog",

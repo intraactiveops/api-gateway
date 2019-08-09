@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Validator;
 use App;
 
 class ChannelController extends GenericController
@@ -18,7 +21,8 @@ class ChannelController extends GenericController
           'foreign_tables' => [
             'user' => [
               'foreign_tables' => [
-                'user_basic_information' => []
+                'user_basic_information' => [],
+                'user_profile_picture' => []
               ]
             ]
           ]
@@ -27,7 +31,8 @@ class ChannelController extends GenericController
           'foreign_tables' => [
             'user' => [
               'foreign_tables' => [
-                'user_basic_information' => []
+                'user_basic_information' => [],
+                'user_profile_picture' => []
               ]
             ],
             'channel_message_post' => [
@@ -46,7 +51,7 @@ class ChannelController extends GenericController
     $this->initGenericController();
   }
   public function create(Request $request){
-    $entry = $request->all();
+    $requestArray = $request->all();
     $resultObject = [
       "success" => false,
       "fail" => false
@@ -58,13 +63,13 @@ class ChannelController extends GenericController
       'channel_messages.0.type' => 'required|in:1,2,3',
       'channel_messages.0.channel_message_post' => "required|array"
     ];
-    if($validation->isValid($entry)){
-      $entry['channel_messages'][0]['user_id'] = config('payload.id');
-      $entry['channel_participants'] = $this->setChannelParticipantType($entry['channel_participants']);
+    if($validation->isValid($requestArray)){
+      $requestArray['channel_messages'][0]['user_id'] = config('payload.id');
+      $requestArray['channel_participants'] = $this->setChannelParticipantType($requestArray['channel_participants']);
       $genericCreate = new Core\GenericCreate($this->tableStructure, $this->model);
-      $resultObject['success'] = $genericCreate->create($entry);
-      if($resultObject['success'] && isset($entry['channel_messages'][0]['channel_message_post']['channel_message_post_attachments']) && count($entry['channel_messages'][0]['channel_message_post']['channel_message_post_attachments']) > 0){
-        $uploadTicketResult = $this->requestUploadTicket(count($entry['channel_messages'][0]['channel_message_post']['channel_message_post_attachments']), 'Channel Message Message Post Upload');
+      $resultObject['success'] = $genericCreate->create($requestArray);
+      if($resultObject['success'] && isset($requestArray['channel_messages'][0]['channel_message_post']['channel_message_post_attachments']) && count($requestArray['channel_messages'][0]['channel_message_post']['channel_message_post_attachments']) > 0){
+        $uploadTicketResult = $this->requestUploadTicket(count($requestArray['channel_messages'][0]['channel_message_post']['channel_message_post_attachments']), 'Channel Message Message Post Upload');
         $resultObject['success']['upload_ticket_id'] = $uploadTicketResult['upload_ticket_id'];
         $resultObject['success']['upload_location'] = $uploadTicketResult['upload_location'];
       }
@@ -84,6 +89,96 @@ class ChannelController extends GenericController
     }
     $channelParticipants[] = ['user_id' => config('payload.id'), 'type' => 1];
     return $channelParticipants;
+  }
+  public function search(Request $request){
+    $requestArray = $request->all();
+    $validator = Validator::make($requestArray, [
+      'keyword' => 'required',
+      'limit' => 'numeric|max:30',
+      "select" => "required|array|min:1"
+    ]);
+    if($validator->fails()){
+      $this->responseGenerator->setFail([
+        "code" => 1,
+        "message" => $validator->errors()->toArray()
+      ]);
+      return $this->responseGenerator->generate();
+    }
+
+    $resultLimit = isset($requestArray['limit']) ? $requestArray['limit'] : 10;
+    $resultOffset = isset($requestArray['offset']) ? $requestArray['offset'] : 0;
+    $searchText = 'CONCAT(channels.title, " ",GROUP_CONCAT(user_basic_informations.first_name, " ", user_basic_informations.last_name, " "))';
+    $this->model = $this->model->select(DB::raw($searchText.' as search_text'));
+    $this->model->addSelect('own_channel_participant.user_id');
+    $this->model->addSelect('channels.id');
+    $this->model->addSelect('channels.title');
+    $this->model->orderBy('channels.id', 'desc');
+    // $this->model = $this->model->join('channel_participants', 'channel_participants.channel_id', '=', 'channels.id');
+    $this->model = $this->model->join('channel_participants', function ($join) {
+        $join->on( 'channel_participants.channel_id', '=', 'channels.id')->distinct('channel_participants.user_id')->orderBy('channel_participants.id');
+    });
+    $this->model = $this->model->join('channel_participants as own_channel_participant', function ($join) {
+        $join->on('own_channel_participant.channel_id', '=', 'channels.id')->on('own_channel_participant.user_id', '=', DB::raw(config('payload.id')));
+    });
+    $this->model = $this->model->join('user_basic_informations', 'user_basic_informations.user_id', '=', 'channel_participants.user_id');
+    $this->model = $this->model->groupBy('channel_participants.channel_id');
+    $this->model = $this->model->groupBy('channel_participants.user_id');
+    $this->model = $this->model->groupBy('own_channel_participant.channel_id');
+    $this->model->where('own_channel_participant.user_id', DB::raw(config('payload.id')));
+    $this->model->offset($resultOffset);
+    $currentResultCount = 0;
+    $allResult = [];
+    $this->initPermutation();
+    $keyWordPermutations = collect(explode(" ", $requestArray['keyword']))->permute()->toArray();
+    for($x = 0; $x < count($keyWordPermutations); $x++){
+      $keyword = "%".join("% %", $keyWordPermutations[$x])."%";
+      $result = collect($this->searchSet($keyword, clone $this->model, $allResult, $resultLimit))->pluck('id')->toArray();
+      $allResult = array_merge($allResult, $result);
+      if($resultLimit === count($allResult) ){
+        break;
+      }
+    }
+
+    $this->model = new App\Channel();
+    if(isset($requestArray['condition'])){
+      $requestArray['condition'] = [];
+    }
+    $requestArray['condition'][] = [
+      "column" => "id",
+      "clause" => "in",
+      "value" => $allResult
+    ];
+    if($resultOffset){
+      unset($requestArray['offset']);
+    }
+    $genericRetrieve = new Core\GenericRetrieve($this->tableStructure, $this->model, $requestArray, $this->retrieveCustomQueryModel);
+    $this->responseGenerator->setSuccess($genericRetrieve->executeQuery());
+    if($genericRetrieve->totalResult != null){
+      $this->responseGenerator->setTotalResult($genericRetrieve->totalResult);
+    }
+    return $this->responseGenerator->generate();
+  }
+  private function searchSet($keyword, $model, $allResult, $resultLimit){
+    $model->having(DB::raw('search_text'), 'like', $keyword);
+    $model = $model->whereNotIn('channels.id', $allResult);
+    return $model->limit($resultLimit - count($allResult))->get()->toArray();
+  }
+  private function initPermutation(){
+    Collection::macro('permute', function () {
+        if ($this->isEmpty()) {
+            return new static([[]]);
+        }
+
+        return $this->flatMap(function ($value, $index) {
+            return (new static($this))
+                ->forget($index)
+                ->values()
+                ->permute()
+                ->map(function ($item) use ($value) {
+                    return (new static($item))->prepend($value);
+                });
+        });
+    });
   }
 
 }
