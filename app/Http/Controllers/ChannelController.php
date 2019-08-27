@@ -40,7 +40,17 @@ class ChannelController extends GenericController
               'validation_required' => false,
               'foreign_tables' => [
                 'channel_message_post_attachments' => [],
-                'channel_message_post_people_tag' => []
+                'channel_message_post_user_tags' => [
+                  "is_child" => true,
+                  'foreign_tables' => [
+                    'user' => [
+                      'foreign_tables' => [
+                        'user_basic_information' => [],
+                        'user_profile_picture' => []
+                      ]
+                    ]
+                  ]
+                ]
               ]
             ]
           ]
@@ -130,6 +140,7 @@ class ChannelController extends GenericController
     $allResult = [];
     $this->initPermutation();
     $keyWordPermutations = collect(explode(" ", $requestArray['keyword']))->permute()->toArray();
+    $this->responseGenerator->addDebug('permute', $keyWordPermutations);
     for($x = 0; $x < count($keyWordPermutations); $x++){
       $keyword = "%".join("% %", $keyWordPermutations[$x])."%";
       $result = collect($this->searchSet($keyword, clone $this->model, $allResult, $resultLimit))->pluck('id')->toArray();
@@ -138,7 +149,6 @@ class ChannelController extends GenericController
         break;
       }
     }
-
     $this->model = new App\Channel();
     if(isset($requestArray['condition'])){
       $requestArray['condition'] = [];

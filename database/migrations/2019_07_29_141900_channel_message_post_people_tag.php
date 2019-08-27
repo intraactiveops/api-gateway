@@ -16,13 +16,13 @@ class ChannelMessagePostPeopleTag extends Migration
       Schema::create('channel_message_post_user_tags', function(Blueprint $table){
         $table->bigIncrements('id');
         $table->unsignedBigInteger('user_id');
-        $table->unsignedBigInteger('post_id');
+        $table->unsignedBigInteger('channel_message_post_id');
         $table->timestamps();
         $table->softDeletes();
       });
       Schema::table('channel_message_post_user_tags', function(Blueprint $table){
         $table->foreign('user_id')->references('id')->on('users');
-        $table->foreign('post_id')->references('id')->on('posts');
+        $table->foreign('channel_message_post_id')->references('id')->on('channel_message_posts');
       });
     }
 

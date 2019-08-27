@@ -11,7 +11,7 @@ class ChannelMessagePostController extends GenericController
     $this->tableStructure = [
       'foreign_tables' => [
         'channel_message_post_attachments' => [],
-        'channel_message_post_people_tag' => []
+        'channel_message_post_user_tag' => []
       ]
     ];
     $this->initGenericController();

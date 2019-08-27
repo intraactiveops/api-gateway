@@ -23,7 +23,18 @@ class NewsfeedPostController extends GenericController
                   ]
                 ]
               ]
-            ]
+            ],
+            'post_reactions' => [],
+            'post_comments' => [
+              'foreign_tables' => [
+                'user' => [
+                  'foreign_tables' => [
+                    'user_basic_information' => [],
+                    'user_profile_picture' => []
+                  ]
+                ]
+              ]
+            ],
           ]
         ],
         'user' => [
