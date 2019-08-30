@@ -31,7 +31,13 @@ class ChannelMessageController extends GenericController
               ]
             ]
           ]
-        ]
+        ],
+        'user' => [
+          'foreign_tables' => [
+            'user_basic_information' => [],
+            'user_profile_picture' => []
+          ]
+        ],
       ]
     ];
     $this->initGenericController();
