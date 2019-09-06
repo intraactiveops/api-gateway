@@ -18,7 +18,7 @@ class Post extends Migration
         $table->char('title', 200)->nullable();
         $table->text('text')->nullable();;
         $table->text('posted_from_address')->nullable();
-        $table->boolea('is_complete')->default(false)->comment('indicator if the attachments are uploaded. If none, then the value is true');
+        $table->boolean('is_complete')->default(false)->comment('indicator if the attachments are uploaded. If none, then the value is true');
         $table->timestamps();
         $table->softDeletes();
       });

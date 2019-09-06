@@ -12,5 +12,5 @@ class Channel extends GenericModel
   public function channel_messages(){
     return $this->hasMany('App\ChannelMessage');
   }
-  
+
 }
