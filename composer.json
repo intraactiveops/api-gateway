@@ -40,7 +40,8 @@
             "app/Http/Helper/quick_helper.php"
         ],
         "psr-4": {
-            "App\\": "app/"
+            "App\\": "app/",
+            "Generic\\": "app/generic"
         },
         "classmap": [
             "database/seeds",
