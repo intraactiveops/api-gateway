@@ -112,7 +112,7 @@ class UserController extends GenericController
             $this->tableStructure = [];
             $this->initGenericController();
             $genericCreate = new Core\GenericCreate($this->tableStructure, $this->model);
-            $roleID =  (config('payload.roles') == null || (!config('payload.roles.1') && !config('payload.roles.100'))) ? 101 : $userRole['id'];
+            $roleID =  (config('payload.roles') == null || (!config('payload.roles.1') && !config('payload.roles.100'))) ? 101 : $entry['role']['id'];
             $this->responseGenerator->addDebug('roleID', $roleID);
             $this->responseGenerator->addDebug('payload.roles.1', config('payload.roles.1'));
             $this->responseGenerator->addDebug('payload.roles.100', config('payload.roles.100'));

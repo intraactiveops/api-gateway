@@ -20,7 +20,6 @@ class CreateUsersTable extends Migration
             $table->string('password');
             $table->unsignedInteger('user_type_id');
             $table->tinyInteger('status')->comment('0 - Not activated, 1 - activated, 2 - rejected, 3 - deactivated')->default(0);
-            $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();
         });
