@@ -58,6 +58,12 @@ class ChannelController extends GenericController
 
       ]
     ];
+    $this->retrieveCustomQueryModel = function($queryModel, &$leftJoinedTable){
+      $leftJoinedTable[] = 'channel_participants';
+      $queryModel = $queryModel->join('channel_participants', "channels.id", "=", "channel_participants.channel_id");
+      $queryModel = $queryModel->where('channel_participants.user_id', $this->userSession());
+      return $queryModel;
+    };
     $this->initGenericController();
   }
   public function create(Request $request){
@@ -122,7 +128,7 @@ class ChannelController extends GenericController
     $this->model->addSelect('own_channel_participant.user_id');
     $this->model->addSelect('channels.id');
     $this->model->addSelect('channels.title');
-    $this->model->orderBy('channels.id', 'desc');
+    $this->model->orderBy('channels.updated_at', 'desc');
     // $this->model = $this->model->join('channel_participants', 'channel_participants.channel_id', '=', 'channels.id');
     $this->model = $this->model->join('channel_participants', function ($join) {
         $join->on( 'channel_participants.channel_id', '=', 'channels.id')->distinct('channel_participants.user_id')->orderBy('channel_participants.id');
@@ -135,20 +141,19 @@ class ChannelController extends GenericController
     $this->model = $this->model->groupBy('channel_participants.user_id');
     $this->model = $this->model->groupBy('own_channel_participant.channel_id');
     $this->model->where('own_channel_participant.user_id', DB::raw(config('payload.id')));
-    $this->model->offset($resultOffset);
     $currentResultCount = 0;
     $allResult = [];
     $this->initPermutation();
-    $keyWordPermutations = collect(explode(" ", $requestArray['keyword']))->permute()->toArray();
-    $this->responseGenerator->addDebug('permute', $keyWordPermutations);
+    $keyWordPermutations = explode(" ", $requestArray['keyword']);
+    $this->model = $this->model->offset($resultOffset);
+    $this->model = $this->model->limit($resultLimit);
     for($x = 0; $x < count($keyWordPermutations); $x++){
-      $keyword = "%".join("% %", $keyWordPermutations[$x])."%";
-      $result = collect($this->searchSet($keyword, clone $this->model, $allResult, $resultLimit))->pluck('id')->toArray();
-      $allResult = array_merge($allResult, $result);
-      if($resultLimit === count($allResult) ){
-        break;
-      }
+      $this->model = $this->model->orHaving(DB::raw($searchText), 'like', '%'.$keyWordPermutations[$x] . '%');
     }
+    $allResult = collect($this->model->distinct('id')->get()->toArray())->pluck('id');
+    $this->responseGenerator->addDebug('rez', $allResult);
+    $this->responseGenerator->addDebug('$resultOffset', $resultOffset);
+    $this->responseGenerator->addDebug('perm', $keyWordPermutations);
     $this->model = new App\Channel();
     if(isset($requestArray['condition'])){
       $requestArray['condition'] = [];

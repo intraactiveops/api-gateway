@@ -25,7 +25,7 @@ class ChannelMessagePostsAttachments extends Migration
         $table->softDeletes();
       });
       Schema::table('channel_message_post_attachments', function(Blueprint $table){
-        $table->foreign('channel_message_post_id')->references('id')->on('posts');
+        $table->foreign('channel_message_post_id')->references('id')->on('channel_message_posts');
       });
     }
 
