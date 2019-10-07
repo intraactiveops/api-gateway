@@ -33,10 +33,12 @@ class ServiceLayerController extends Controller
       $request = [
         'data' => null, // the data if request is success
         'error' => null, // array of errors
-        'debug' => null
+        'debug' => []
       ];
       $param['PAYLOAD'] = $this->user(null);
-      $request['DEBUG'] = $this->userTokenData; $this->getSubPermissions($serviceActionRegistry['id']);
+      $request['debug'][] = $this->userTokenData;
+      $request['debug'][] = $serviceActionRegistry['base_link'].'/'.$serviceActionRegistry['link'];
+      $this->getSubPermissions($serviceActionRegistry['id']);
       // printR($param);
       try {
         $client = new Client(); //GuzzleHttp\Client
@@ -46,7 +48,7 @@ class ServiceLayerController extends Controller
         $result = json_decode((string)$result->getBody(), true);
         $request['data'] = $result['data'];
         $request['additional_data'] = $result['additional_data'];
-        $request['debug'] = $result['debug'];
+        $request['debug'][] = $result['debug'];
       } catch (GuzzleException $e) {
         $response = json_encode($e->getResponse()->getBody());
         if($e->getResponse()->getStatusCode() == 422){ // validation error
