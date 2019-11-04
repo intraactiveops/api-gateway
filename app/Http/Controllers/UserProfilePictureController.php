@@ -52,6 +52,9 @@ class UserProfilePictureController extends GenericController
           "expected_file_quantity" => 2,
           "note" => 'profile picture'
         ];
+        if(!env('FILE_SERVER')){
+          dd('File Server Empty');
+        }
         $client = new Client(); //GuzzleHttp\Client
           $result = $client->request('POST', env('FILE_SERVER').'/v1/get-ticket', [
           'json' => $param

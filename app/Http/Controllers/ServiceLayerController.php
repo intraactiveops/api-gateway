@@ -45,6 +45,7 @@ class ServiceLayerController extends Controller
         $result = $client->request('POST', $serviceActionRegistry['base_link'].'/'.$serviceActionRegistry['link'], [
           'json' => $param
         ]);
+        $request['debug'][] = 'aaaa';
         $result = json_decode((string)$result->getBody(), true);
         $request['data'] = $result['data'];
         $request['additional_data'] = $result['additional_data'];
@@ -67,7 +68,7 @@ class ServiceLayerController extends Controller
             "shot" => (string)$e->getResponse()->getBody()
           ];
         }
-        $request['debug'] = isset($response['debug']) ? $response['debug'] : null;
+        $request['debug'][] = isset($response['debug']) ? $response['debug'] : null;
       }
       return $request;
     }
