@@ -166,7 +166,12 @@ class ChannelController extends GenericController
     $this->responseGenerator->addDebug('rez', $allResult);
     $this->responseGenerator->addDebug('$resultOffset', $resultOffset);
     $this->model = new App\Channel();
-    $this->model->orderBy('id', 'desc');
+    $requestArray['sort'] = [
+      [
+        "column" => 'updated_at',
+        "order" => "desc"
+      ]
+    ];
     if(isset($requestArray['condition'])){
       $requestArray['condition'] = [];
     }
