@@ -109,7 +109,7 @@ class ChannelController extends GenericController
   public function search(Request $request){
     $requestArray = $request->all();
     $validator = Validator::make($requestArray, [
-      'keyword' => 'required',
+      // 'keyword' => 'required',
       'limit' => 'numeric|max:30',
       "select" => "required|array|min:1"
     ]);
@@ -123,19 +123,25 @@ class ChannelController extends GenericController
 
     $resultLimit = isset($requestArray['limit']) ? $requestArray['limit'] : 10;
     $resultOffset = isset($requestArray['offset']) ? $requestArray['offset'] : 0;
+    unset($requestArray['offset']);
+    unset($requestArray['limit']);
     $searchText = 'CONCAT(channels.title, " ",GROUP_CONCAT(user_basic_informations.first_name, " ", user_basic_informations.last_name, " "))';
     $this->model = $this->model->select(DB::raw($searchText.' as search_text'));
     $this->model->addSelect('own_channel_participant.user_id');
     $this->model->addSelect('channels.id');
     $this->model->addSelect('channels.title');
-    $this->model->orderBy('channels.updated_at', 'desc');
-    // $this->model = $this->model->join('channel_participants', 'channel_participants.channel_id', '=', 'channels.id');
+    $this->model->addSelect('channels.updated_at');
+
+
     $this->model = $this->model->join('channel_participants', function ($join) {
         $join->on( 'channel_participants.channel_id', '=', 'channels.id')->distinct('channel_participants.user_id')->orderBy('channel_participants.id');
     });
-    $this->model = $this->model->join('channel_participants as own_channel_participant', function ($join) {
+    $this->model->join('channel_participants as own_channel_participant', function ($join) {
+        $join->where('own_channel_participant.deleted_at', null);
         $join->on('own_channel_participant.channel_id', '=', 'channels.id')->on('own_channel_participant.user_id', '=', DB::raw(config('payload.id')));
     });
+    $this->model->addSelect('own_channel_participant.channel_id');
+    $this->model->addSelect('own_channel_participant.user_id as oc_user_id');
     $this->model = $this->model->join('user_basic_informations', 'user_basic_informations.user_id', '=', 'channel_participants.user_id');
     $this->model = $this->model->groupBy('channel_participants.channel_id');
     $this->model = $this->model->groupBy('channel_participants.user_id');
@@ -143,18 +149,24 @@ class ChannelController extends GenericController
     $this->model->where('own_channel_participant.user_id', DB::raw(config('payload.id')));
     $currentResultCount = 0;
     $allResult = [];
-    $this->initPermutation();
-    $keyWordPermutations = explode(" ", $requestArray['keyword']);
+    // $this->initPermutation();
     $this->model = $this->model->offset($resultOffset);
     $this->model = $this->model->limit($resultLimit);
-    for($x = 0; $x < count($keyWordPermutations); $x++){
-      $this->model = $this->model->orHaving(DB::raw($searchText), 'like', '%'.$keyWordPermutations[$x] . '%');
+    $this->model->orderBy('channels.id', 'desc');
+    if($requestArray['keyword'] && $requestArray['keyword'] != ''){
+      $keyWordPermutations = explode(" ", $requestArray['keyword']);
+      for($x = 0; $x < count($keyWordPermutations); $x++){
+        $this->model = $this->model->orHaving(DB::raw($searchText), 'like', '%'.$keyWordPermutations[$x] . '%');
+      }
     }
-    $allResult = collect($this->model->distinct('id')->get()->toArray())->pluck('id');
+    unset($requestArray['keyword']);
+    $allResult = collect($this->model->distinct('id')->get()->toArray()); //->pluck('id');
+    // printR($allResult);
+    $allResult = $allResult->pluck('id');
     $this->responseGenerator->addDebug('rez', $allResult);
     $this->responseGenerator->addDebug('$resultOffset', $resultOffset);
-    $this->responseGenerator->addDebug('perm', $keyWordPermutations);
     $this->model = new App\Channel();
+    $this->model->orderBy('id', 'asc');
     if(isset($requestArray['condition'])){
       $requestArray['condition'] = [];
     }
@@ -166,7 +178,13 @@ class ChannelController extends GenericController
     if($resultOffset){
       unset($requestArray['offset']);
     }
-    $genericRetrieve = new Core\GenericRetrieve($this->tableStructure, $this->model, $requestArray, $this->retrieveCustomQueryModel);
+    // $model->join('channel_participants as own_channel_participant', function ($join) {
+    //   echo 'yawa';
+    //   $join->on('own_channel_participant.channel_id', '=', 'channels.id')->on('own_channel_participant.user_id', '=', DB::raw(config('payload.id')));
+    // });
+
+    $genericRetrieve = new Core\GenericRetrieve($this->tableStructure, $this->model, $requestArray);
+
     $this->responseGenerator->setSuccess($genericRetrieve->executeQuery());
     if($genericRetrieve->totalResult != null){
       $this->responseGenerator->setTotalResult($genericRetrieve->totalResult);
