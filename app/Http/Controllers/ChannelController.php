@@ -125,11 +125,11 @@ class ChannelController extends GenericController
     $resultOffset = isset($requestArray['offset']) ? $requestArray['offset'] : 0;
     unset($requestArray['offset']);
     unset($requestArray['limit']);
-    $searchText = 'CONCAT(channels.title, " ",GROUP_CONCAT(user_basic_informations.first_name, " ", user_basic_informations.last_name, " "))';
+    $searchText = 'CONCAT(channels.title, " ", GROUP_CONCAT(user_basic_informations.first_name, " ", user_basic_informations.last_name, " "))';
     $this->model = $this->model->select(DB::raw($searchText.' as search_text'));
     $this->model->addSelect('own_channel_participant.user_id');
     $this->model->addSelect('channels.id');
-    $this->model->addSelect('channels.title');
+    // $this->model->addSelect('channels.title');
     $this->model->addSelect('channels.updated_at');
 
 

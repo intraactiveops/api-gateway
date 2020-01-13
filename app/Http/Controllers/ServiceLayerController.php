@@ -37,7 +37,8 @@ class ServiceLayerController extends Controller
       ];
       $param['PAYLOAD'] = $this->user(null);
       $request['debug'][] = $this->userTokenData;
-      $request['debug'][] = $serviceActionRegistry['base_link'].'/'.$serviceActionRegistry['link'];
+      $request['debug'][] = $serviceActionRegistry['base_link'];
+      $request['debug'][] = '/'.$serviceActionRegistry['link'];
       $this->getSubPermissions($serviceActionRegistry['id']);
       // printR($param);
       try {
@@ -45,30 +46,37 @@ class ServiceLayerController extends Controller
         $result = $client->request('POST', $serviceActionRegistry['base_link'].'/'.$serviceActionRegistry['link'], [
           'json' => $param
         ]);
-        $request['debug'][] = 'aaaa';
+        $request['debug'][] = 'Guzzle Request Sent';
+        $request['debug'][] = $result->getStatusCode();
         $result = json_decode((string)$result->getBody(), true);
         $request['data'] = $result['data'];
         $request['additional_data'] = $result['additional_data'];
         $request['debug'][] = $result['debug'];
+        
       } catch (GuzzleException $e) {
-        $response = json_encode($e->getResponse()->getBody());
-        if($e->getResponse()->getStatusCode() == 422){ // validation error
-          $response = json_decode((string)$e->getResponse()->getBody(), true);
-          $request['error'] = $response['error'];
-        }else if($e->getResponse()->getStatusCode() == 500){
-          $request['error'] = [
-            "code" => 500,
-            "message" => 'Server Error in the Resource',
-            "shot" => (string)$e->getResponse()->getBody()
-          ];
+        if($e->getResponse()){
+          // echo $serviceActionRegistry['base_link'].'/'.$serviceActionRegistry['link'];
+          $response = json_encode($e->getResponse()->getBody());
+          if($e->getResponse()->getStatusCode() == 422){ // validation error
+            $response = json_decode((string)$e->getResponse()->getBody(), true);
+            $request['error'] = $response['error'];
+          }else if($e->getResponse()->getStatusCode() == 500){
+            $request['error'] = [
+              "code" => 500,
+              "message" => 'Server Error in the Resource',
+              "shot" => (string)$e->getResponse()->getBody()
+            ];
+          }else{
+            $request['error'] = [
+              "code" => $e->getResponse()->getStatusCode(),
+              "message" => 'Unknow Error',
+              "shot" => (string)$e->getResponse()->getBody()
+            ];
+          }
+          $request['debug'][] = isset($response['debug']) ? $response['debug'] : null;
         }else{
-          $request['error'] = [
-            "code" => $e->getResponse()->getStatusCode(),
-            "message" => 'Unknow Error',
-            "shot" => (string)$e->getResponse()->getBody()
-          ];
         }
-        $request['debug'][] = isset($response['debug']) ? $response['debug'] : null;
+        $request['debug'][] = "response: ".$e->getResponse()->getBody();
       }
       return $request;
     }
