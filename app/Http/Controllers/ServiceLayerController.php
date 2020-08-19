@@ -3,7 +3,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Exception\BadResponseException ;
+use GuzzleHttp\Exception\ServerException ;
 use GuzzleHttp\Client;
 use App;
 class ServiceLayerController extends Controller
@@ -14,7 +15,7 @@ class ServiceLayerController extends Controller
       $serviceActionRegistry = $this->getService("$module/$function");
       // dd($serviceActionRegistry);
       if($serviceActionRegistry){
-        if($serviceActionRegistry['auth_required']){ // service needs token
+        if($serviceActionRegistry['auth_required'] * 1){ // service needs token
           if($this->isAuthorized($serviceActionRegistry['id'])){
             $resource = $this->requestResource($serviceActionRegistry, $request->all());
             return $this->generateResponse($resource);
@@ -33,50 +34,57 @@ class ServiceLayerController extends Controller
       $request = [
         'data' => null, // the data if request is success
         'error' => null, // array of errors
-        'debug' => []
+        'debug' => null
       ];
       $param['PAYLOAD'] = $this->user(null);
-      $request['debug'][] = $this->userTokenData;
-      $request['debug'][] = $serviceActionRegistry['base_link'];
-      $request['debug'][] = '/'.$serviceActionRegistry['link'];
-      $this->getSubPermissions($serviceActionRegistry['id']);
-      // printR($param);
+      $request['DEBUG'] = $this->userTokenData; $this->getSubPermissions($serviceActionRegistry['id']);
+      $request['api_link'] = $serviceActionRegistry['base_link'].'/'.$serviceActionRegistry['link'];
       try {
-        $client = new Client(); //GuzzleHttp\Client
+        $client = new Client(["verify" => false]); //GuzzleHttp\Client
         $result = $client->request('POST', $serviceActionRegistry['base_link'].'/'.$serviceActionRegistry['link'], [
           'json' => $param
         ]);
-        $request['debug'][] = 'Guzzle Request Sent';
-        $request['debug'][] = $result->getStatusCode();
         $result = json_decode((string)$result->getBody(), true);
         $request['data'] = $result['data'];
         $request['additional_data'] = $result['additional_data'];
-        $request['debug'][] = $result['debug'];
-        
-      } catch (GuzzleException $e) {
-        if($e->getResponse()){
-          // echo $serviceActionRegistry['base_link'].'/'.$serviceActionRegistry['link'];
-          $response = json_encode($e->getResponse()->getBody());
-          if($e->getResponse()->getStatusCode() == 422){ // validation error
+        $request['debug'] = $result['debug'];
+      } catch (BadResponseException $e) {
+        $responseRaw = $e->getResponse();
+        if($responseRaw){
+          $response = json_encode($responseRaw->getBody());
+          if($responseRaw->getStatusCode() == 422){ // validation error
             $response = json_decode((string)$e->getResponse()->getBody(), true);
             $request['error'] = $response['error'];
-          }else if($e->getResponse()->getStatusCode() == 500){
+          }else if($responseRaw->getStatusCode() == 500){
             $request['error'] = [
               "code" => 500,
               "message" => 'Server Error in the Resource',
-              "shot" => (string)$e->getResponse()->getBody()
+              "reponse_body" => (string)$e->getResponse()->getBody()
             ];
           }else{
             $request['error'] = [
-              "code" => $e->getResponse()->getStatusCode(),
+              "link" => $serviceActionRegistry['base_link'].'/'.$serviceActionRegistry['link'],
+              "code" => $responseRaw->getStatusCode(),
               "message" => 'Unknow Error',
-              "shot" => (string)$e->getResponse()->getBody()
+              "response_body" => (string)$responseRaw->getBody()
             ];
           }
-          $request['debug'][] = isset($response['debug']) ? $response['debug'] : null;
         }else{
+        //   $request['error'] = [
+        //     "link" => $serviceActionRegistry['base_link'].'/'.$serviceActionRegistry['link'],
+        //     "code" => 500,
+	       // "message" => 'Response is null'
+        //   ];
         }
-        $request['debug'][] = "response: ".$e->getResponse()->getBody();
+        
+        $request['debug'] = isset($response['debug']) ? $response['debug'] : null;
+      } catch(ServerException $eS){
+          $request['error'] = [
+              "link" => $serviceActionRegistry['base_link'].'/'.$serviceActionRegistry['link'],
+              "code" => $responseRaw->getStatusCode(),
+              "message" => 'Unknow Error',
+              "response_body" => (string)$responseRaw->getBody()
+            ];
       }
       return $request;
     }
@@ -93,6 +101,9 @@ class ServiceLayerController extends Controller
             break;
           case 2:
             $httpErrorCode = 401;
+            break;
+          default:
+            $httpErrorCode = 422;
         }
         return response($response, $httpErrorCode)->header('Content-Type', $this->contentType);;
       }else{
